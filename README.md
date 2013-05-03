@@ -24,7 +24,7 @@ Orno\Di is available on Packagist so the easiest way to install it into your pro
 Simply add orno/di to your `composer.json` file like so:
 
     "require": {
-        "orno/di": "v1.*"
+        "orno/di": "1.*"
     },
 
 #### A Note on Versioning
