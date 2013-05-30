@@ -184,7 +184,7 @@ $foo = new Foo($bar, $baz);
 With nested dependencies, this can become quite cumbersome and hard to keep track of. With the container, to return a fully configured instance of `Foo` it is as simple as turning on auto resolution and requesting and instance of `Foo`.
 
 ```php
-$container = (new Orno\Di\Container)->autoResolve(true);
+$container = (new Orno\Di\Container);
 
 $foo = $container->resolve('Foo');
 ```
@@ -217,7 +217,7 @@ class Storage implements StorageInterface
     // ..
 }
 
-$container = (new Orno\Di\Container)->autoResolve(true);
+$container = (new Orno\Di\Container);
 
 $session = $container->resolve('Session');
 ```
