@@ -1,39 +1,58 @@
 <?php
-
 /**
  * The Orno Component Library
  *
  * @author  Phil Bennett @philipobenito
- * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ * @license MIT (see the LICENSE file)
  */
 namespace Orno\Di;
 
 /**
- * Container Interface
- *
- * A contract to provide an implementation of a container
+ * ContainerInterface
  */
 interface ContainerInterface
 {
     /**
-     * Register
+     * Add a definition to the container
      *
-     * Register an item with the container
-     *
-     * @param  mixed   $alias
-     * @param  mixed   $object
-     * @param  boolean $shared
-     * @return \Orno\Di\Definition
+     * @param string  $alias
+     * @param mixed   $concrete
+     * @param boolean $singleton
+     * @return \Orno\Di\Definition\DefinitionInterface
      */
-    public function register($alias, $object = null, $shared = false);
+    public function add($alias, $concrete = null, $singleton = false);
 
     /**
-     * Resolve
+     * Add a singleton definition to the container
      *
-     * Resolve an item from the container
+     * @param  string $alias    [description]
+     * @param  mixed  $concrete [description]
+     * @return \Orno\Di\Definition\DefinitionInterface
+     */
+    public function singleton($alias, $concrete = null);
+
+    /**
+     * Get an item from the container
      *
      * @param  string $alias
-     * @return object
+     * @param  array  $args
+     * @return mixed
      */
-    public function resolve($alias);
+    public function get($alias, array $args = []);
+
+    /**
+     * Check if an item is registered with the container
+     *
+     * @param  string  $alias
+     * @return boolean
+     */
+    public function isRegistered($alias);
+
+    /**
+     * Check if an item is being managed as a singleton
+     *
+     * @param  string  $alias
+     * @return boolean
+     */
+    public function isSingleton($alias);
 }

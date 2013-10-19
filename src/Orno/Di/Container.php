@@ -1,353 +1,237 @@
 <?php
-
 /**
  * The Orno Component Library
  *
  * @author  Phil Bennett @philipobenito
- * @license http://www.wtfpl.net/txt/copying/ WTFPL
+ * @license MIT (see the LICENSE file)
  */
 namespace Orno\Di;
 
-use Closure;
-use ArrayAccess;
-use ReflectionMethod;
-use ReflectionClass;
+use Orno\Config\Repository as Config;
+use Orno\Cache\Cache;
 
 /**
  * Container
- *
- * A Dependency Injection Container.
  */
-class Container implements ContainerInterface, ArrayAccess
+class Container implements ContainerInterface, \ArrayAccess
 {
     /**
-     * Sad but true static instance
-     *
-     * @var Orno\Di\Container
+     * @var \Orno\Di\Definition\Factory
      */
-    protected static $instance = null;
+    protected $factory;
 
     /**
-     * Items registered with the container
-     *
-     * @var array
+     * @var \Orno\Config\Repository
      */
-    protected $values = [];
+    protected $config;
 
     /**
-     * Shared instances
-     *
+     * @var \Orno\Cache\Cache
+     */
+    protected $cache;
+
+    /**
      * @var array
      */
-    protected $shared = [];
+    protected $items = [];
+
+    /**
+     * @var array
+     */
+    protected $singletons = [];
 
     /**
      * Constructor
      *
-     * @param array $config
+     * @param \Orno\Di\Definition\Factory $factory
+     * @param \Orno\Config\Repository     $config
+     * @param \Orno\Cache\Cache           $cache
      */
-    public function __construct(array $config = [])
-    {
-        self::$instance = $this;
+    public function __construct(
+        Definition\Factory $factory,
+        Config $config = null,
+        Cache $cache = null
+    ) {
+        $this->factory = $factory;
+        $this->config  = $config;
+        $this->cache   = $cache;
 
-        if (! empty($config)) {
-            $this->setConfig($config);
-        }
+        $this->addItemsFromConfig();
     }
 
     /**
-     * Singleton method :-(
-     *
-     * @return Container $this
+     * {@inheritdoc}
      */
-    public static function getContainer()
+    public function add($alias, $concrete = null, $singleton = false)
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
+        if (is_null($concrete)) {
+            $concrete = $alias;
         }
 
-        return self::$instance;
+        $this->items[$alias]['singleton'] = $singleton;
+
+        if ($concrete instanceof \Closure) {
+            $definition = $factory->closureDefinition($alias, $concrete, $this);
+            $this->items[$alias]['definition'] = $definition;
+            return $definition;
+        }
+
+        if (is_string($concrete) && class_exists($concrete)) {
+            $definition = $factory->classDefinition($alias, $concrete, $this);
+            $this->items[$alias]['definition'] = $definition;
+            return $definition;
+        }
+
+        // if the concrete is an already instantiated object, we just store it
+        // as a singleton
+        if (is_object($concrete)) {
+            $this->singletons[$alias] = $concrete;
+        }
+
+        // if we've got this far we're dealing with an arbitrary value
+        $definition = $this->factory->arbitraryDefinition($alias, $concrete, $this);
+        $this->items[$alias]['definition'] = $definition;
+
+        return $definition;
     }
 
     /**
-     * Set Config
-     *
-     * Provide configuration for the container instance
-     *
-     * @param  array     $config
-     * @return Container $this
+     * {@inheritdoc}
      */
-    public function setConfig(array $config = [])
+    public function get($alias, array $args = [])
     {
-        foreach ($config as $alias => $options) {
-            $shared = (array_key_exists('shared', $options)) ?: false;
+        // if we have a singleton just return it
+        if (array_key_exists($alias, $this->singletons)) {
+            return $this->singletons[$alias];
+        }
 
-            $object = (array_key_exists('object', $options)) ? $options['object'] : $alias;
+        // invoke the correct definition
+        if (array_key_exists($alias, $this->items)) {
+            $definition = $this->items[$alias]['definition'];
 
-            $object = ($options instanceof Closure) ? $options : $alias;
-
-            $object = $this->register($alias, $object, $shared);
-
-            if (array_key_exists('arguments', $options)) {
-                $object->withArguments((array) $options['arguments']);
+            if (
+                $definition instanceof Definition\ClosureDefinition ||
+                $definition instanceof Definition\ClassDefinition
+            ) {
+                return $definition($args);
             }
 
-            if (array_key_exists('methods', $options)) {
-                $object->withMethodCalls((array) $options['methods']);
-            }
+            return $definition();
         }
 
-        return $this;
-    }
+        // check for and invoke a definition that was reflected on then cached
+        if (! is_null($this->cache)) {
+            $cached = $this->cache->get('orno::container::' . $alias);
 
-    /**
-     * Register
-     *
-     * Register a class name, closure or fully configured item with the container,
-     * we will handle dependencies at the time it is requested
-     *
-     * @param  string  $alias
-     * @param  mixed   $object
-     * @param  boolean $shared
-     * @param  boolean $auto
-     * @return void
-     */
-    public function register($alias, $object = null, $shared = false, $auto = false)
-    {
-        // if $object is null we assume the $alias is a class name that
-        // needs to be registered
-        if (is_null($object)) {
-            $object = $alias;
-        }
-
-        // do we want to store this object as a singleton?
-        $this->values[$alias]['shared'] = ($shared === true) ?: false;
-
-        // if the $object is a string and $autoResolve is turned off we get a new
-        // Definition instance to allow further configuration of our object
-        if (is_string($object)) {
-            $object = new Definition($object, $this, $auto);
-        }
-
-        // simply store whatever $object is in the container and resolve it
-        // when it is requested
-        $this->values[$alias]['object'] = $object;
-
-        // if the $object has been set as a Definition, return the instance of
-        // definition for any further runtime configuration
-        if ($object instanceof Definition) {
-            return $object;
-        }
-    }
-
-    /**
-     * Registered
-     *
-     * Check if an alias is registered with the container
-     *
-     * @param  string $key
-     * @return boolean
-     */
-    public function registered($key)
-    {
-        return array_key_exists($key, $this->values);
-    }
-
-    /**
-     * Resolve
-     *
-     * Resolve and return the requested item
-     *
-     * @param  string $alias
-     * @param  array  $args
-     * @return mixed
-     */
-    public function resolve($alias, array $args = [])
-    {
-        $object = null;
-        $closure = false;
-        $definition = false;
-
-        // if the requested item is not registered with the container already
-        // then we register it for easier resolution
-        if (! array_key_exists($alias, $this->values)) {
-            $this->register($alias, $alias, false, true);
-        }
-
-        // if the item is currently stored as a shared item we just return it
-        if (array_key_exists($alias, $this->shared)) {
-            return $this->shared[$alias];
-        }
-
-        // if the item is a factory closure we call the function with args
-        if ($this->values[$alias]['object'] instanceof Closure) {
-            $object = call_user_func_array($this->values[$alias]['object'], $args);
-            $closure = true;
-        }
-
-        // if the item is an instance of Definition we invoke it
-        if ($this->values[$alias]['object'] instanceof Definition) {
-            $object = $this->values[$alias]['object']();
-            $definition = true;
-        }
-
-        // do we need to save it as a shared item?
-        if ($this->values[$alias]['shared'] === true) {
-            $this->shared[$alias] = $object;
-        }
-
-        return $object;
-    }
-
-    /**
-     * Build
-     *
-     * Builds an object and injects constructor arguments
-     *
-     * @param  string $object
-     * @return object
-     */
-    public function build($object)
-    {
-        $reflection = new ReflectionClass($object);
-        $construct = $reflection->getConstructor();
-
-        // if the $object has no constructor we just return the object
-        if (is_null($construct)) {
-            return new $object;
-        }
-
-        // get the constructors params to pass to dependencies method
-        $params = $construct->getParameters();
-
-        // resolve an array of dependencies
-        $dependencies = $this->dependencies($object, $params);
-
-        return $reflection->newInstanceArgs($dependencies);
-    }
-
-    /**
-     * Dependencies
-     *
-     * Recursively resolve dependencies, and dependencies of dependencies etc.. etc..
-     * Will first check if the parameters type hint is instantiable and resolve that, if
-     * not it will attempt to resolve an implementation from the param annotation
-     *
-     * @param  string $object
-     * @param  array  $params
-     * @return array
-     */
-    public function dependencies($object, $params)
-    {
-        $dependencies = [];
-
-        foreach ($params as $param) {
-            $dependency     = $param->getClass();
-            $dependencyName = $dependency->getName();
-
-            // has the dependency been registered to an alias with the container?
-            // e.g. Interface to Implementation
-            if (array_key_exists($dependencyName, $this->values)) {
-                $dependencies[] = $this->resolve($dependencyName);
-                continue;
-            }
-
-            // if the type hint is instantiable we just resolve it
-            if ($dependency->isInstantiable()) {
-                $dependencies[] = $this->resolve($dependencyName);
-                continue;
-            }
-
-            // if we've got this far we can check the @param annotations from the
-            // constructors DocComment to try and resolve a concrete implementation
-            $matches = $this->getConstructorParams($object);
-
-            // loop through constructor parameters and match any annotations to resolve
-            if ($matches !== false) {
-                foreach ($matches['name'] as $key => $val) {
-                    if ($val === $param->getName()) {
-                        $dependencies[] = $this->resolve($matches['type'][$key]);
-                        break;
-                    }
-                }
+            if ($cached !== false) {
+                $definition = unserialize($cached);
+                return $definition();
             }
         }
 
-        return $dependencies;
+        // if we've got this far, we can assume we need to reflect on a class
+        // and automatically resolve it's dependencies, we we also cache the
+        // result if a caching adapter is available
+        $definition = $this->reflect($alias);
+        $this->cache->set('orno::container::' . $alias, serialize($definition));
+        $this->items[$alias]['definition'] = $definition;
+
+        return $definition();
     }
 
     /**
-     * Get Constructor Parameters
-     *
-     * Accepts an object in string or object form and returns an
-     * array of param matches from the constructor doc block
-     *
-     * @param  string $object
-     * @return array|boolean
+     * {@inheritdoc}
      */
-    public function getConstructorParams($object)
+    public function isRegistered($alias)
     {
-        $docComment = (new ReflectionMethod($object, '__construct'))->getDocComment();
+        return array_key_exists($alias, $this->items);
+    }
 
-        $result = preg_match_all(
-            '/@param[\t\s]*(?P<type>[^\t\s]*)[\t\s]*\$(?P<name>[^\t\s]*)/sim',
-            $docComment,
-            $matches
+    /**
+     * {@inheritdoc}
+     */
+    public function isSingleton($alias)
+    {
+        return (
+            array_key_exists($alias, $this->singletons) ||
+            (array_key_exists($alias, $this->items) && true === $this->items[$alias]['singleton'])
         );
-
-        return $result > 0 ? $matches : false;
     }
 
     /**
-     * ArrayAccess Get
+     * Populate the container with items from config
      *
-     * Proxy to resolve method
-     *
-     * @param  string $key
-     * @return mixed
-     */
-    public function offsetGet($key)
-    {
-        return $this->resolve($key);
-    }
-
-    /**
-     * ArrayAccess Set
-     *
-     * Proxy to register method
-     *
-     * @param  string $key
-     * @param  mixed  $value
      * @return void
      */
-    public function offsetSet($key, $value)
+    protected function addItemsFromConfig()
     {
-        $this->register($key, $value);
+        array_walk($this->config->get('di', []), function (&$options, $alias) {
+            $singleton = (array_key_exists('singleton', $options)) ?: false;
+            $concrete  = (array_key_exists('class', $options)) ? $options['concrete'] : null;
+
+            // if the concrete doesn't have a class associated with it then it
+            // must be either a Closure or arbitrary type so we just bind that
+            $concrete = (is_null($concrete)) ? $options : $concrete;
+
+            $definition = $this->add($alias, $concrete, $singleton);
+
+            // set constructor argument injections
+            if (array_key_exists('arguments', $options)) {
+                $definition->withArguments((array) $options['arguments']);
+            }
+
+            // set method calls
+            if (array_key_exists('methods', $options)) {
+                $definition->withMethodCalls((array) $options['methods']);
+            }
+        });
     }
 
     /**
-     * ArrayAccess Unset
+     * Reflect on a class, establish it's dependencies and build a definition
+     * from that information
      *
-     * Destroys an item in the container
-     *
-     * @param  string $key
-     * @return void
+     * @param  string $class
+     * @return \Orno\Di\Definition\ClassDefinition
      */
-    public function offsetUnset($key)
+    protected function reflect($class)
     {
-        unset($this->values[$key]);
-    }
+        try {
+            $reflection  = new \ReflectionClass($class);
+            $constructor = $reflection->getConstructor();
+        } catch (\ReflectionException $e) {
+            throw new Exception\ReflectionException(
+                sprintf('Unable to reflect on the class [%s], does the class exist and is it properly autoloaded?', $class)
+            );
+        }
 
-    /**
-     * ArrayAccess Exists
-     *
-     * Proxy to registered method
-     *
-     * @param  string $key
-     * @return boolean
-     */
-    public function offsetExists($key)
-    {
-        return $this->registered($key);
+        $definition = $this->factory->classDefinition($class, $class, $this);
+
+        if (is_null($constructor)) {
+            return $definition;
+        }
+
+        // loop through dependencies and get aliases/values
+        foreach ($constructor->getParameters() as $param) {
+            $dependency = $param->getClass();
+
+            // if the dependency is not a class we attempt to get a dafult value
+            if (is_null($dependency)) {
+                if ($param->isDefaultValueAvailable()) {
+                    $definition->withArgument($param->getDafultValue());
+                    continue;
+                }
+
+                throw new Exception\UnresolvableDependencyException(
+                    sprintf('Unable to resolve a non-class dependency of [%s] for [%s]', $param, $class)
+                );
+            }
+
+            // if the dependency is a class, just register it's name as an
+            // argument with the definition
+            $definition->withArgument($name);
+        }
+
+        return $definition;
     }
 }
