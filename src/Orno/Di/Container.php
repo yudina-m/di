@@ -167,7 +167,7 @@ class Container implements ContainerInterface, \ArrayAccess
     {
         array_walk($this->config->get('di', []), function (&$options, $alias) {
             $singleton = (array_key_exists('singleton', $options)) ?: false;
-            $concrete  = (array_key_exists('class', $options)) ? $options['concrete'] : null;
+            $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
 
             // if the concrete doesn't have a class associated with it then it
             // must be either a Closure or arbitrary type so we just bind that
