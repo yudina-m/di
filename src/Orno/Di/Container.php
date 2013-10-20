@@ -9,6 +9,7 @@ namespace Orno\Di;
 
 use Orno\Config\Repository as Config;
 use Orno\Cache\Cache;
+use Orno\Di\Definition\FactoryInterface;
 
 /**
  * Container
@@ -16,7 +17,7 @@ use Orno\Cache\Cache;
 class Container implements ContainerInterface, \ArrayAccess
 {
     /**
-     * @var \Orno\Di\Definition\Factory
+     * @var \Orno\Di\Definition\FactoryInterface
      */
     protected $factory;
 
@@ -41,18 +42,23 @@ class Container implements ContainerInterface, \ArrayAccess
     protected $singletons = [];
 
     /**
+     * @var boolean
+     */
+    protected $caching = true;
+
+    /**
      * Constructor
      *
-     * @param \Orno\Di\Definition\Factory $factory
-     * @param \Orno\Config\Repository     $config
-     * @param \Orno\Cache\Cache           $cache
+     * @param \Orno\Di\Definition\FactoryInterface $factory
+     * @param \Orno\Config\Repository              $config
+     * @param \Orno\Cache\Cache                    $cache
      */
     public function __construct(
-        Definition\Factory $factory,
-        Config $config = null,
-        Cache $cache = null
+        FactoryInterface $factory = null,
+        Config           $config  = null,
+        Cache            $cache   = null
     ) {
-        $this->factory = $factory;
+        $this->factory = (is_null($factory)) ? new Definition\Factory : $factory;
         $this->config  = $config;
         $this->cache   = $cache;
 
@@ -70,12 +76,14 @@ class Container implements ContainerInterface, \ArrayAccess
 
         $this->items[$alias]['singleton'] = $singleton;
 
+        // store a closure definition
         if ($concrete instanceof \Closure) {
             $definition = $factory->closureDefinition($alias, $concrete, $this);
             $this->items[$alias]['definition'] = $definition;
             return $definition;
         }
 
+        // store a class definition
         if (is_string($concrete) && class_exists($concrete)) {
             $definition = $factory->classDefinition($alias, $concrete, $this);
             $this->items[$alias]['definition'] = $definition;
@@ -98,6 +106,14 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * {@inheritdoc}
      */
+    public function singleton($alias, $concrete = null)
+    {
+        return $this->add($alias, $concrete, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function get($alias, array $args = [])
     {
         // if we have a singleton just return it
@@ -113,27 +129,36 @@ class Container implements ContainerInterface, \ArrayAccess
                 $definition instanceof Definition\ClosureDefinition ||
                 $definition instanceof Definition\ClassDefinition
             ) {
-                return $definition($args);
+                $return = $definition($args);
+            } else {
+                $return = $definition();
             }
 
-            return $definition();
+            // store as a singleton if needed
+            if ($this->items[$alias]['singleton'] === true) {
+                $this->singletons[$alias] = $return;
+            }
+
+            return $return;
         }
 
         // check for and invoke a definition that was reflected on then cached
-        if (! is_null($this->cache)) {
-            $cached = $this->cache->get('orno::container::' . $alias);
-
-            if ($cached !== false) {
+        if (! is_null($this->cache) && $this->caching === true) {
+            if ($cached = $this->cache->get('orno::container::' . $alias)) {
                 $definition = unserialize($cached);
                 return $definition();
             }
         }
 
         // if we've got this far, we can assume we need to reflect on a class
-        // and automatically resolve it's dependencies, we we also cache the
+        // and automatically resolve it's dependencies, we also cache the
         // result if a caching adapter is available
         $definition = $this->reflect($alias);
-        $this->cache->set('orno::container::' . $alias, serialize($definition));
+
+        if (! is_null($this->cache) && $this->caching === true) {
+            $this->cache->set('orno::container::' . $alias, serialize($definition));
+        }
+
         $this->items[$alias]['definition'] = $definition;
 
         return $definition();
@@ -156,6 +181,16 @@ class Container implements ContainerInterface, \ArrayAccess
             array_key_exists($alias, $this->singletons) ||
             (array_key_exists($alias, $this->items) && true === $this->items[$alias]['singleton'])
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function caching($switch = true)
+    {
+        $this->caching = (boolean) $switch;
+
+        return $this;
     }
 
     /**
@@ -196,6 +231,7 @@ class Container implements ContainerInterface, \ArrayAccess
      */
     protected function reflect($class)
     {
+        // try to reflect on the class so we can build a definition
         try {
             $reflection  = new \ReflectionClass($class);
             $constructor = $reflection->getConstructor();
@@ -229,7 +265,7 @@ class Container implements ContainerInterface, \ArrayAccess
 
             // if the dependency is a class, just register it's name as an
             // argument with the definition
-            $definition->withArgument($name);
+            $definition->withArgument($dependency->getName());
         }
 
         return $definition;
