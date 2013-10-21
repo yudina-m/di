@@ -57,10 +57,25 @@ interface ContainerInterface
     public function isSingleton($alias);
 
     /**
-     * Enable/disable caching
+     * Enable caching
      *
      * @param  boolean $switch
      * @return \Orno\Di\ContainerInterface
      */
-    public function caching($switch = true);
+    public function enableCaching();
+
+    /**
+     * Disable caching
+     *
+     * @param  boolean $switch
+     * @return \Orno\Di\ContainerInterface
+     */
+    public function disableCaching();
+
+    /**
+     * Checks if the container is currently caching reflection results
+     *
+     * @return boolean
+     */
+    public function isCaching();
 }
