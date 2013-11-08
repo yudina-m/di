@@ -20,7 +20,7 @@ class Factory
      * @param  string                       $alias
      * @param  mixed                        $concrete
      * @param  \Orno\Di\ContainerInterface  $container
-     * @return \Orno\Di\Definition\DefinitionInterface
+     * @return mixed
      */
     public function __invoke($alias, $concrete, ContainerInterface $container)
     {
@@ -32,6 +32,8 @@ class Factory
             return new ClassDefinition($alias, $concrete, $container);
         }
 
-        return new ArbitraryDefinition($alias, $concrete, $container);
+        // if the item is not defineable we just return the value to be stored
+        // in the container as an arbitrary value/instance
+        return $concrete;
     }
 }
