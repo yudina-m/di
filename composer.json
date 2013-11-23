@@ -6,6 +6,10 @@
     "require": {
         "php": ">=5.4"
     },
+    "suggest": {
+        "orno/cache": "Enables caching of reflection based resolution",
+        "orno/config": "Allows useage of config files rather than interacting with the container directly"
+    },
     "authors": [
         {
             "name": "Phil Bennett",
