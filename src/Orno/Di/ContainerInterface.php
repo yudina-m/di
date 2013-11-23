@@ -59,7 +59,6 @@ interface ContainerInterface
     /**
      * Enable caching
      *
-     * @param  boolean $switch
      * @return \Orno\Di\ContainerInterface
      */
     public function enableCaching();
@@ -67,7 +66,6 @@ interface ContainerInterface
     /**
      * Disable caching
      *
-     * @param  boolean $switch
      * @return \Orno\Di\ContainerInterface
      */
     public function disableCaching();
