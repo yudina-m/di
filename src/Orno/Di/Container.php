@@ -64,7 +64,12 @@ class Container implements ContainerInterface, \ArrayAccess
         $this->config  = $config;
         $this->cache   = $cache;
 
-        $this->addItemsFromConfig();
+        if (! is_null($config)) {
+            $this->addItemsFromConfig();
+        }
+
+        $this->add('Orno\Di\ContainerInterface', $this);
+        $this->add('Orno\Di\Container', $this);
     }
 
     /**
@@ -86,7 +91,8 @@ class Container implements ContainerInterface, \ArrayAccess
         // get a definition of the item
         $this->items[$alias]['singleton'] = (boolean) $singleton;
 
-        $definition = $this->factory($alias, $concrete, $this);
+        $factory = $this->getDefinitionFactory();
+        $definition = $factory($alias, $concrete, $this);
         $this->items[$alias]['definition'] = $definition;
 
         return $definition;
@@ -117,11 +123,11 @@ class Container implements ContainerInterface, \ArrayAccess
             if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition) {
                 $return = $definition($args);
             } else {
-                $return = $definition();
+                $return = $definition;
             }
 
             // store as a singleton if needed
-            if ($this->items[$alias]['singleton'] === true) {
+            if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
                 $this->singletons[$alias] = $return;
             }
 
@@ -198,6 +204,16 @@ class Container implements ContainerInterface, \ArrayAccess
     }
 
     /**
+     * Encapsulate the definition factory to allow for invokation
+     *
+     * @return \Orno\Di\Definition\Factory
+     */
+    protected function getDefinitionFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
      * Populate the container with items from config
      *
      * @return void
@@ -245,7 +261,8 @@ class Container implements ContainerInterface, \ArrayAccess
             );
         }
 
-        $definition = $this->factory->classDefinition($class, $class, $this);
+        $factory = $this->getDefinitionFactory();
+        $definition = $factory($class, $class, $this);
 
         if (is_null($constructor)) {
             return $definition;
@@ -258,7 +275,7 @@ class Container implements ContainerInterface, \ArrayAccess
             // if the dependency is not a class we attempt to get a dafult value
             if (is_null($dependency)) {
                 if ($param->isDefaultValueAvailable()) {
-                    $definition->withArgument($param->getDafultValue());
+                    $definition->withArgument($param->getDefaultValue());
                     continue;
                 }
 
@@ -273,5 +290,51 @@ class Container implements ContainerInterface, \ArrayAccess
         }
 
         return $definition;
+    }
+
+    /**
+     * ArrayAccess get
+     *
+     * @param  string $key
+     * @return mixed
+     */
+    public function offsetGet($key)
+    {
+        return $this->get($key);
+    }
+
+    /**
+     * ArrayAccess set
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     * @return void
+     */
+    public function offsetSet($key, $value)
+    {
+        $this->singleton($key, $value);
+    }
+
+    /**
+     * ArrayAccess unset
+     *
+     * @param  string $key
+     * @return void
+     */
+    public function offsetUnset($key)
+    {
+        unset($this->items[$key]);
+        unset($this->singletons[$key]);
+    }
+
+    /**
+     * ArrayAccess isset
+     *
+     * @param  string $key
+     * @return boolean
+     */
+    public function offsetExists($key)
+    {
+        return $this->isRegistered($key);
     }
 }
