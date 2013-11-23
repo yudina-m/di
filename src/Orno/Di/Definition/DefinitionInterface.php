@@ -34,7 +34,7 @@ interface DefinitionInterface
      * @param  array $arg
      * @return \Orno\Di\Definition\DefinitionInterface
      */
-    public function withArguments($args);
+    public function withArguments(array $args);
 
     /**
      * Add a method to be invokes
