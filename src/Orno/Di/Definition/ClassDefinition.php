@@ -103,7 +103,7 @@ class ClassDefinition implements DefinitionInterface
      */
     public function withMethodCalls(array $methods = [])
     {
-        foreach ($methods as $method => $argss) {
+        foreach ($methods as $method => $args) {
             $this->withMethodCall($method, $args);
         }
 
@@ -126,10 +126,10 @@ class ClassDefinition implements DefinitionInterface
         }
 
         // resolve constructor arguments and inject
-        $args = [];
-
         foreach ($this->arguments as $arg) {
-            $args[] = $this->container->get($arg);
+            (array) $args[] = ($this->container->isRegistered($arg) || class_exists($arg))
+                            ? $this->container->get($arg)
+                            : $arg;
         }
 
         return $reflection->newInstanceArgs($args);
