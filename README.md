@@ -26,6 +26,13 @@ include 'vendor/autoload.php';
 
 ## Usage
 
+- [Constructor Injection](#constructor-injection)
+- [Setter Injection](#setter-injection)
+- [Factory Closures](#factory-closures)
+- [Automatic Dependency Resolution](#automatic-dependency-resolution)
+- [Caching](#caching)
+- [Configuration](#configuration)
+
 ### Constructor Injection
 
 The container can be used to register objects and inject constructor arguments such as dependencies or config items.
@@ -37,7 +44,9 @@ For example, if we have a `Session` object that depends on an implementation of 
 class Session
 {
     protected $storage;
+
     protected $sessionKey;
+
     public function __construct(StorageInterface $storage, $sessionKey)
     {
         $this->storage    = $storage;
@@ -74,11 +83,14 @@ If you prefer setter injection to constructor injection, a few minor alterations
 class Session
 {
     protected $storage;
+
     protected $sessionKey;
+
     public function setStorage(StorageInterface $storage)
     {
         $this->storage = $storage;
     }
+
     public function setSessionKey($sessionKey)
     {
         $this->sessionKey = $sessionKey;
@@ -106,6 +118,38 @@ $session = $container->get('session');
 
 This has the added benefit of being able to manipulate the behaviour of the object with optional setters. Only call the methods you need for this instance of the object.
 
+### Factory Closures
+
+The most performant way to use Orno\Di is to use factory closures/anonymous functions to build your objects. By registering a closure that returns a fully configured object, when resolved, your object will be lazy loaded as and when you need access to it.
+
+Consider an object `Foo` that depends on another object `Bar`. The following will return an instance of `Foo` containing a member `bar` that contains an instance of `Bar`.
+
+```
+class Foo
+{
+    public $bar;
+
+    public function __construct(Bar $bar)
+    {
+        $this->bar = $bar;
+    }
+}
+
+class Bar
+{
+    // ..
+}
+
+$container = new \Orno\Di\Container;
+
+$container->add('foo', function() {
+    $bar = new Bar;
+    return new Foo($bar);
+});
+
+$foo = $container->get('foo');
+```
+
 ### Automatic Dependency Resolution
 
 Orno\Di has the power to automatically resolve your objects and all of their dependencies recursively by inspecting the type hints of your constructor arguments. Unfortunately, this method of resolution has a few small limitations but is great for smaller apps. First of all, you are limited to constructor injection and secondly, all injections must be objects.
@@ -114,7 +158,9 @@ Orno\Di has the power to automatically resolve your objects and all of their dep
 class Foo
 {
     public $bar;
+
     public $baz;
+
     public function __construct(Bar $bar, Baz $baz)
     {
         $this->bar = $bar;
@@ -125,6 +171,7 @@ class Foo
 class Bar
 {
     public $bam;
+
     public function __construct(Bam $bam)
     {
         $this->bam = $bam;
@@ -155,6 +202,96 @@ With nested dependencies, this can become quite cumbersome and hard to keep trac
 
 ```
 $container = new \Orno\Di\Container;
+
+$foo = $container->get('Foo');
+```
+
+### Caching
+
+By injecting [Orno\Cache](https://github.com/orno/cache) in to the container, it will cache any reflection based resolution for you meaning that there is less bootstrap/config in your development time.
+
+```
+$config = [
+    'servers' => [
+        ['127.0.0.1', 11211, 12]
+    ],
+    'expiry' => '24h'
+];
+
+$memcached = new \Orno\Cache\Adapter\MemcachedAdapter($config);
+$cache = new \Orno\Cache\Cache($memcached);
+
+$container = new \Orno\Di\Container($cache);
+
+$foo = $container->get('Foo');
+```
+
+In the above example, `Foo` will be reflected on by the container as there is no defined alias. The container will build a definition from that reflection and cache the result in Memcached for 24 hours.
+
+### Configuration
+
+As your project grows, so will your dependency map. At this point it may be worth abstracting your mappins in to a config file. By using [Orno\Config](https://github.com/orno/config) you can store your mappings in either PHP arrays, XML or YAML.
+
+```
+class Foo
+{
+    public $bar;
+
+    public $baz;
+
+    public function __construct(Bar $bar)
+    {
+        $this->bar = $bar;
+    }
+
+    public function setBaz(Baz $baz)
+    {
+        $this->baz = $baz;
+    }
+}
+
+class Bar
+{
+    // ..
+}
+
+class Baz
+{
+    // ..
+}
+```
+
+To map the above code you may do the following.
+
+```
+<?php // array_config.php
+
+return [
+    'Foo' => [
+        'class'     => 'Foo',
+        'arguments' => [
+            'Bar'
+        ],
+        'methods'   => [
+            'setBaz' => ['Baz']
+        ]
+    ],
+    'Bar' => [
+        'class' => 'Bar'
+    ],
+    'Baz' => [
+        'class' => 'Baz'
+    ]
+];
+```
+
+Then add the dependency map to the container.
+
+```
+$loader = new \Orno\Config\File\ArrayFileLoader('path/to/config/array_config.php', 'di');
+$config = (new \Orno\Config\Repository)->addFileLoader($loader);
+
+$container = new \Orno\Di\Container(null, $config);
 
 $foo = $container->get('Foo');
 ```
