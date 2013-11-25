@@ -59,7 +59,7 @@ class ClosureDefinition
      */
     public function __invoke(array $args = [])
     {
-        return call_user_func_array($this->closure, (empty($args)) ? $this->args : $args);
+        return call_user_func_array($this->closure, (empty($args)) ? $this->arguments : $args);
     }
 
     /**
@@ -90,7 +90,7 @@ class ClosureDefinition
     public function withMethodCall($method, array $args = [])
     {
         throw new Exception\UnbindableMethodCallException(
-            sprintf('Cannot bind a method call to a Closure aliased as [%s]', $this->method)
+            sprintf('Cannot bind a method call to a Closure aliased as [%s]', $this->alias)
         );
     }
 
@@ -100,7 +100,7 @@ class ClosureDefinition
     public function withMethodCalls(array $methods = [])
     {
         throw new Exception\UnbindableMethodCallException(
-            sprintf('Cannot bind method calls to a Closure aliased as [%s]', $this->method)
+            sprintf('Cannot bind method calls to a Closure aliased as [%s]', $this->alias)
         );
     }
 }

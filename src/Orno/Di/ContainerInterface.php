@@ -25,8 +25,8 @@ interface ContainerInterface
     /**
      * Add a singleton definition to the container
      *
-     * @param  string $alias    [description]
-     * @param  mixed  $concrete [description]
+     * @param  string $alias
+     * @param  mixed  $concrete
      * @return \Orno\Di\Definition\DefinitionInterface
      */
     public function singleton($alias, $concrete = null);

@@ -90,6 +90,87 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $this->assertSame($baz1, $baz2);
     }
 
+    public function testStoresAndInvokesClosure()
+    {
+        $c = new Container;
+
+        $c->add('foo', function () {
+            $foo = new \OrnoTest\Assets\Foo(
+                new \OrnoTest\Assets\Bar(
+                    new \OrnoTest\Assets\Baz
+                )
+            );
+
+            $foo->injectBaz(new \OrnoTest\Assets\Baz);
+
+            return $foo;
+        });
+
+        $foo = $c->get('foo');
+
+        $this->assertInstanceOf('OrnoTest\Assets\Foo', $foo);
+        $this->assertInstanceOf('OrnoTest\Assets\Bar', $foo->bar);
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
+    }
+
+    public function testStoresAndInvokesClosureWithDefinedArguments()
+    {
+        $c = new Container;
+
+        $baz = new \OrnoTest\Assets\Baz;
+        $bar = new \OrnoTest\Assets\Bar($baz);
+
+        $c->add('foo', function ($bar, $baz) {
+            $foo = new \OrnoTest\Assets\Foo($bar);
+
+            $foo->injectBaz($baz);
+
+            return $foo;
+        })->withArguments([$bar, $baz]);
+
+        $foo = $c->get('foo');
+
+        $this->assertInstanceOf('OrnoTest\Assets\Foo', $foo);
+        $this->assertInstanceOf('OrnoTest\Assets\Bar', $foo->bar);
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
+    }
+
+    public function testSettingMethodCallOnClosureThrowsException()
+    {
+        $this->setExpectedException('Orno\Di\Exception\UnbindableMethodCallException');
+
+        $c = new Container;
+
+        $baz = new \OrnoTest\Assets\Baz;
+        $bar = new \OrnoTest\Assets\Bar($baz);
+
+        $c->add('foo', function ($bar, $baz) {
+            $foo = new \OrnoTest\Assets\Foo($bar);
+
+            $foo->injectBaz($baz);
+
+            return $foo;
+        })->withMethodCall('someMethod', []);
+    }
+
+    public function testSettingMethodCallsOnClosureThrowsException()
+    {
+        $this->setExpectedException('Orno\Di\Exception\UnbindableMethodCallException');
+
+        $c = new Container;
+
+        $baz = new \OrnoTest\Assets\Baz;
+        $bar = new \OrnoTest\Assets\Bar($baz);
+
+        $c->add('foo', function ($bar, $baz) {
+            $foo = new \OrnoTest\Assets\Foo($bar);
+
+            $foo->injectBaz($baz);
+
+            return $foo;
+        })->withMethodCalls([]);
+    }
+
     public function testStoresAndReturnsArbitraryValues()
     {
         $baz1 = new \OrnoTest\Assets\Baz;
@@ -200,5 +281,56 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $c = new Container(null, null, $cache);
 
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $c->get('OrnoTest\Assets\Baz'));
+    }
+
+    public function testArrayAccessMapsToCorrectMethods()
+    {
+        $c = new Container;
+
+        $c['OrnoTest\Assets\Baz'] = 'OrnoTest\Assets\Baz';
+
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $c['OrnoTest\Assets\Baz']);
+
+        $this->assertTrue(isset($c['OrnoTest\Assets\Baz']));
+
+        unset($c['OrnoTest\Assets\Baz']);
+
+        $this->assertFalse(isset($c['OrnoTest\Assets\Baz']));
+    }
+
+    public function testContainerAcceptsConfig()
+    {
+        $array = [
+            'OrnoTest\Assets\Foo' => [
+                'class' => 'OrnoTest\Assets\Foo',
+                'arguments' => ['OrnoTest\Assets\Bar'],
+                'methods' => [
+                    'injectBaz' => ['OrnoTest\Assets\Baz']
+                ]
+            ],
+            'OrnoTest\Assets\Bar' => [
+                'class' => 'OrnoTest\Assets\Bar',
+                'arguments' => ['OrnoTest\Assets\Baz']
+            ]
+        ];
+
+        $config = $this->getMockBuilder('Orno\Config\Repository')
+                       ->setMethods(['get'])
+                       ->disableOriginalConstructor()
+                       ->getMock();
+
+        $config->expects($this->once())
+               ->method('get')
+               ->with($this->equalTo('di'), $this->equalTo([]))
+               ->will($this->returnValue($array));
+
+        $c = new Container(null, $config, null);
+
+        $foo = $c->get('OrnoTest\Assets\Foo');
+
+        $this->assertInstanceOf('OrnoTest\Assets\Foo', $foo);
+        $this->assertInstanceOf('OrnoTest\Assets\Bar', $foo->bar);
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->bar->baz);
+        $this->assertInstanceOf('OrnoTest\Assets\BazInterface', $foo->bar->baz);
     }
 }

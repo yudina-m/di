@@ -83,7 +83,7 @@ class Container implements ContainerInterface, \ArrayAccess
 
         // if the concrete is an already instantiated object, we just store it
         // as a singleton
-        if (is_object($concrete)) {
+        if (is_object($concrete) && ! $concrete instanceof \Closure) {
             $this->singletons[$alias] = $concrete;
             return $this;
         }
