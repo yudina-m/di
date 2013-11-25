@@ -222,7 +222,7 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
     {
         $cache = $this->getMockBuilder('Orno\Cache\Cache')->disableOriginalConstructor()->getMock();
 
-        $c = new Container(null, null, $cache);
+        $c = new Container($cache);
 
         $this->assertTrue($c->isCaching());
 
@@ -251,7 +251,7 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
               ->with($this->equalTo('orno::container::OrnoTest\Assets\Baz'))
               ->will($this->returnValue(false));
 
-        $c = new Container(null, null, $cache);
+        $c = new Container($cache);
 
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $c->get('OrnoTest\Assets\Baz'));
     }
@@ -278,7 +278,7 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
               ->with($this->equalTo('orno::container::OrnoTest\Assets\Baz'))
               ->will($this->returnValue($definition));
 
-        $c = new Container(null, null, $cache);
+        $c = new Container($cache);
 
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $c->get('OrnoTest\Assets\Baz'));
     }
@@ -324,7 +324,7 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
                ->with($this->equalTo('di'), $this->equalTo([]))
                ->will($this->returnValue($array));
 
-        $c = new Container(null, $config, null);
+        $c = new Container(null, $config);
 
         $foo = $c->get('OrnoTest\Assets\Foo');
 

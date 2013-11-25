@@ -51,14 +51,14 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * Constructor
      *
-     * @param \Orno\Di\Definition\Factory $factory
-     * @param \Orno\Config\Repository     $config
      * @param \Orno\Cache\Cache           $cache
+     * @param \Orno\Config\Repository     $config
+     * @param \Orno\Di\Definition\Factory $factory
      */
     public function __construct(
-        Factory $factory = null,
+        Cache   $cache   = null,
         Config  $config  = null,
-        Cache   $cache   = null
+        Factory $factory = null
     ) {
         $this->factory = (is_null($factory)) ? new Factory : $factory;
         $this->config  = $config;
