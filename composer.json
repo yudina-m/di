@@ -2,9 +2,13 @@
     "name": "orno/di",
     "description": "Orno Di is a small but powerful dependency injection container with automatic resolution of dependencies.",
     "keywords": ["orno", "di", "dependency", "injection", "container"],
-    "license": "WTFPL",
+    "license": "MIT",
     "require": {
         "php": ">=5.4"
+    },
+    "suggest": {
+        "orno/cache": "Enables caching of reflection based resolution",
+        "orno/config": "Allows useage of config files rather than interacting with the container directly"
     },
     "authors": [
         {
@@ -15,7 +19,7 @@
     "autoload": {
         "psr-0": {
             "Orno\\Di": "src/",
-            "Assets\\OrnoTest": "tests/"
+            "OrnoTest": "tests/"
         }
     },
     "minimum-stability": "dev"
