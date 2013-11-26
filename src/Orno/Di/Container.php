@@ -220,7 +220,7 @@ class Container implements ContainerInterface, \ArrayAccess
      */
     protected function addItemsFromConfig()
     {
-        array_walk($this->config->get('di', []), function (&$options, $alias) {
+        array_walk($this->config->get('di', []), function ($options, $alias) {
             $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
             $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
 
