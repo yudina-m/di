@@ -8,7 +8,7 @@ Orno\Di is a small but powerful dependency injection container that allows you t
 
 Add `orno/di` to your `composer.json`.
 
-```
+```json
 {
     "require": {
         "orno/di": "2.*"
@@ -18,7 +18,7 @@ Add `orno/di` to your `composer.json`.
 
 Allow Composer to autoload the container.
 
-```
+```php
 <?php
 
 include 'vendor/autoload.php';
@@ -40,7 +40,7 @@ The container can be used to register objects and inject constructor arguments s
 
 For example, if we have a `Session` object that depends on an implementation of a `StorageInterface` and also requires a session key string. We could do the following:
 
-```
+```php
 class Session
 {
     protected $storage;
@@ -79,7 +79,7 @@ $session = $container->get('session');
 
 If you prefer setter injection to constructor injection, a few minor alterations can be made to accommodate this.
 
-```
+```php
 class Session
 {
     protected $storage;
@@ -124,7 +124,7 @@ The most performant way to use Orno\Di is to use factory closures/anonymous func
 
 Consider an object `Foo` that depends on another object `Bar`. The following will return an instance of `Foo` containing a member `bar` that contains an instance of `Bar`.
 
-```
+```php
 class Foo
 {
     public $bar;
@@ -154,7 +154,7 @@ $foo = $container->get('foo');
 
 Orno\Di has the power to automatically resolve your objects and all of their dependencies recursively by inspecting the type hints of your constructor arguments. Unfortunately, this method of resolution has a few small limitations but is great for smaller apps. First of all, you are limited to constructor injection and secondly, all injections must be objects.
 
-```
+```php
 class Foo
 {
     public $bar;
@@ -191,7 +191,7 @@ class Bam
 
 In the above code, `Foo` has 2 dependencies `Bar` and `Baz`, `Bar` has a further dependency of `Bam`. Normally you would have to do the following to return a fully configured instance of `Foo`.
 
-```
+```php
 $bam = new Bam;
 $baz = new Baz;
 $bar = new Bar($bam);
@@ -200,7 +200,7 @@ $foo = new Foo($bar, $baz);
 
 With nested dependencies, this can become quite cumbersome and hard to keep track of. With the container, to return a fully configured instance of `Foo` it is as simple as requesting `Foo` from the container.
 
-```
+```php
 $container = new \Orno\Di\Container;
 
 $foo = $container->get('Foo');
@@ -210,7 +210,7 @@ $foo = $container->get('Foo');
 
 By injecting [Orno\Cache](https://github.com/orno/cache) in to the container, it will cache any reflection based resolution for you meaning that there is less bootstrap/config in your development time.
 
-```
+```php
 $config = [
     'servers' => [
         ['127.0.0.1', 11211, 12]
@@ -232,7 +232,7 @@ In the above example, `Foo` will be reflected on by the container as there is no
 
 As your project grows, so will your dependency map. At this point it may be worth abstracting your mappins in to a config file. By using [Orno\Config](https://github.com/orno/config) you can store your mappings in either PHP arrays, XML or YAML.
 
-```
+```php
 class Foo
 {
     public $bar;
@@ -263,7 +263,7 @@ class Baz
 
 To map the above code you may do the following.
 
-```
+```php
 <?php // array_config.php
 
 return [
@@ -287,7 +287,7 @@ return [
 
 Then add the dependency map to the container.
 
-```
+```php
 $loader = new \Orno\Config\File\ArrayFileLoader('path/to/config/array_config.php', 'di');
 $config = (new \Orno\Config\Repository)->addFileLoader($loader);
 
