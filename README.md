@@ -1,6 +1,6 @@
 # Orno\Di
 
-[![Build Status](https://travis-ci.org/orno/di.png?branch=master)](https://travis-ci.org/orno/di) [![Latest Stable Version](https://poser.pugx.org/orno/di/v/stable.png)](https://packagist.org/packages/orno/di) [![Total Downloads](https://poser.pugx.org/orno/di/downloads.png)](https://packagist.org/packages/orno/di) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/orno/di/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[![Build Status](https://travis-ci.org/orno/di.png?branch=master)](https://travis-ci.org/orno/di) [![Latest Stable Version](https://poser.pugx.org/orno/di/v/stable.png)](https://packagist.org/packages/orno/di) [![Total Downloads](https://poser.pugx.org/orno/di/downloads.png)](https://packagist.org/packages/orno/di) [![Dependencies Status](https://depending.in/orno/di.png)](http://depending.in/orno/di) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/orno/di/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Orno\Di is a small but powerful dependency injection container that allows you to decouple components in your application in order to write clean and testable code. The container can automatically resolve dependencies of objects resolved through it.
 
