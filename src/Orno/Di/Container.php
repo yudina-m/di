@@ -293,7 +293,7 @@ class Container implements ContainerInterface, \ArrayAccess
     }
 
     /**
-     * ArrayAccess get
+     * Array Access get
      *
      * @param  string $key
      * @return mixed
@@ -304,7 +304,7 @@ class Container implements ContainerInterface, \ArrayAccess
     }
 
     /**
-     * ArrayAccess set
+     * Array Access set
      *
      * @param  string $key
      * @param  mixed  $value
@@ -316,7 +316,7 @@ class Container implements ContainerInterface, \ArrayAccess
     }
 
     /**
-     * ArrayAccess unset
+     * Array Access unset
      *
      * @param  string $key
      * @return void
@@ -328,7 +328,7 @@ class Container implements ContainerInterface, \ArrayAccess
     }
 
     /**
-     * ArrayAccess isset
+     * Array Access isset
      *
      * @param  string $key
      * @return boolean
