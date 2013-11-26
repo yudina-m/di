@@ -295,3 +295,7 @@ $container = new \Orno\Di\Container(null, $config);
 
 $foo = $container->get('Foo');
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/orno/di/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
