@@ -127,7 +127,7 @@ class ClassDefinition implements DefinitionInterface
 
         // resolve constructor arguments and inject
         foreach ($this->arguments as $arg) {
-            (array) $args[] = ($this->container->isRegistered($arg) || class_exists($arg))
+            (array) $args[] = (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg)))
                             ? $this->container->get($arg)
                             : $arg;
         }
