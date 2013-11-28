@@ -6,9 +6,6 @@
     "require": {
         "php": ">=5.4"
     },
-    "require-dev": {
-        "satooshi/php-coveralls": "dev-master"
-    },
     "suggest": {
         "orno/cache": "Enables caching of reflection based resolution",
         "orno/config": "Allows useage of config files rather than interacting with the container directly"
