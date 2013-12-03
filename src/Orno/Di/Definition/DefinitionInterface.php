@@ -31,7 +31,7 @@ interface DefinitionInterface
     /**
      * Add multiple arguments to be injected
      *
-     * @param  array $arg
+     * @param  array $args
      * @return \Orno\Di\Definition\DefinitionInterface
      */
     public function withArguments(array $args);
@@ -39,7 +39,7 @@ interface DefinitionInterface
     /**
      * Add a method to be invokes
      *
-     * @param  string $arg
+     * @param  string $method
      * @param  array  $args
      * @return \Orno\Di\Definition\DefinitionInterface
      */
@@ -48,7 +48,7 @@ interface DefinitionInterface
     /**
      * Add multiple methods to be invoked
      *
-     * @param  array $arg
+     * @param  array $methods
      * @return \Orno\Di\Definition\DefinitionInterface
      */
     public function withMethodCalls(array $methods = []);
