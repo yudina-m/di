@@ -24,11 +24,6 @@ class Container implements ContainerInterface, \ArrayAccess
     protected $factory;
 
     /**
-     * @var \Orno\Config\Repository
-     */
-    protected $config;
-
-    /**
      * @var \Orno\Cache\Cache
      */
     protected $cache;
@@ -61,11 +56,10 @@ class Container implements ContainerInterface, \ArrayAccess
         Factory $factory = null
     ) {
         $this->factory = (is_null($factory)) ? new Factory : $factory;
-        $this->config  = $config;
         $this->cache   = $cache;
 
-        if (! is_null($config)) {
-            $this->addItemsFromConfig();
+        if ($config instanceof Config) {
+            $this->addItemsFromConfig($config);
         }
 
         $this->add('Orno\Di\ContainerInterface', $this);
@@ -216,11 +210,12 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * Populate the container with items from config
      *
+     * @param $config \Orno\Config\Repository
      * @return void
      */
-    protected function addItemsFromConfig()
+    protected function addItemsFromConfig(Config $config)
     {
-        foreach ($this->config->get('di', []) as $alias => $options) {
+        foreach ($config->get('di', []) as $alias => $options) {
             $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
             $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
 
@@ -240,6 +235,8 @@ class Container implements ContainerInterface, \ArrayAccess
                 $definition->withMethodCalls((array) $options['methods']);
             }
         }
+
+        return $this;
     }
 
     /**
