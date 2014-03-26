@@ -216,7 +216,7 @@ class Container implements ContainerInterface, \ArrayAccess
     protected function addItemsFromConfig(Config $config)
     {
         foreach ($config->get('di', []) as $alias => $options) {
-            if (is_string($options)) {
+            if (is_string($options) || $options instanceof \Closure) {
                 $options = [
                     'class' => $options,
                 ];
