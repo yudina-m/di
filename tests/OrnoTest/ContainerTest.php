@@ -56,6 +56,10 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $c->add('OrnoTest\Assets\Bar')
           ->withArguments(['OrnoTest\Assets\Baz']);
 
+        $c->add('closure1', function ($bar) use ($c) {
+            return $c->get('OrnoTest\Assets\Foo', [$bar]);
+        })->withArgument('OrnoTest\Assets\Bar');
+
         $c->add('OrnoTest\Assets\Baz');
 
         $c->add('OrnoTest\Assets\Foo')
@@ -73,6 +77,11 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
 
         $this->assertSame($foo->bar, $runtimeBar);
+
+        $fooClosure = $c->get('closure1');
+
+        $this->assertInstanceOf('OrnoTest\Assets\Foo', $fooClosure);
+        $this->assertInstanceOf('OrnoTest\Assets\Bar', $fooClosure->bar);
     }
 
     public function testSingletonReturnsSameInstanceEverytime()

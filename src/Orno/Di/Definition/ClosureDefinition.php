@@ -59,7 +59,7 @@ class ClosureDefinition
      */
     public function __invoke(array $args = [])
     {
-        return call_user_func_array($this->closure, (empty($args)) ? $this->arguments : $args);
+        return call_user_func_array($this->closure, $this->resolveArguments($args));
     }
 
     /**
@@ -102,5 +102,27 @@ class ClosureDefinition
         throw new Exception\UnbindableMethodCallException(
             sprintf('Cannot bind method calls to a Closure aliased as [%s]', $this->alias)
         );
+    }
+
+    /**
+     * Resolves all of the arguments.  If you do not send an array of arguments
+     * it will use the Definition Arguments.
+     *
+     * @param  array $args The arguments to us instead of $this->arguments
+     * @return array The resolved arguments.
+     */
+    protected function resolveArguments($args = [])
+    {
+        $resolvedArguments = [];
+        $args = empty($args) ? $this->arguments : $args;
+        foreach ($args as $arg) {
+            if (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg))) {
+                $resolvedArguments[] = $this->container->get($arg);
+            } else {
+                $resolvedArguments[] = $arg;
+            }
+        }
+
+        return $resolvedArguments;
     }
 }
