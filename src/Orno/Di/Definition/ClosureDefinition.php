@@ -113,8 +113,10 @@ class ClosureDefinition
      */
     protected function resolveArguments($args = [])
     {
+        $args = (empty($args)) ? $this->arguments : $args;
+
         $resolvedArguments = [];
-        $args = empty($args) ? $this->arguments : $args;
+
         foreach ($args as $arg) {
             if (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg))) {
                 $resolvedArguments[] = $this->container->get($arg);
