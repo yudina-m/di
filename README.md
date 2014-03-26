@@ -280,12 +280,8 @@ return [
             'setBaz' => ['Baz']
         ]
     ],
-    'Bar' => [
-        'class' => 'Bar'
-    ],
-    'Baz' => [
-        'class' => 'Baz'
-    ]
+    'Bar' => 'Bar',
+    'Baz' => 'Baz'
 ];
 ```
 

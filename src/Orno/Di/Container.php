@@ -216,6 +216,12 @@ class Container implements ContainerInterface, \ArrayAccess
     protected function addItemsFromConfig(Config $config)
     {
         foreach ($config->get('di', []) as $alias => $options) {
+            if (is_string($options) || $options instanceof \Closure) {
+                $options = [
+                    'class' => $options,
+                ];
+            }
+
             $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
             $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
 
