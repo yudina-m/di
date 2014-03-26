@@ -311,7 +311,8 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
             'OrnoTest\Assets\Bar' => [
                 'class' => 'OrnoTest\Assets\Bar',
                 'arguments' => ['OrnoTest\Assets\Baz']
-            ]
+            ],
+            'OrnoTest\Assets\Baz' => 'OrnoTest\Assets\Baz',
         ];
 
         $config = $this->getMockBuilder('Orno\Config\Repository')
@@ -332,5 +333,8 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $this->assertInstanceOf('OrnoTest\Assets\Bar', $foo->bar);
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->bar->baz);
         $this->assertInstanceOf('OrnoTest\Assets\BazInterface', $foo->bar->baz);
+
+        $baz = $c->get('OrnoTest\Assets\Baz');
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
     }
 }
