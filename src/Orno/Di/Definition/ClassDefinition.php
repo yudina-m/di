@@ -120,19 +120,19 @@ class ClassDefinition implements DefinitionInterface
     {
         $reflection = new \ReflectionClass($this->class);
 
-        // if we have been given args, just instantiate and return
-        if (! empty($args)) {
-            return $reflection->newInstanceArgs($args);
+        $args = (empty($args)) ? $this->arguments : $args;
+
+        $resolvedArguments = [];
+
+        foreach ($args as $arg) {
+            if (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg))) {
+                $resolvedArguments[] = $this->container->get($arg);
+            } else {
+                $resolvedArguments[] = $arg;
+            }
         }
 
-        // resolve constructor arguments and inject
-        foreach ($this->arguments as $arg) {
-            (array) $args[] = (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg)))
-                            ? $this->container->get($arg)
-                            : $arg;
-        }
-
-        return $reflection->newInstanceArgs($args);
+        return $reflection->newInstanceArgs($resolvedArguments);
     }
 
     /**
