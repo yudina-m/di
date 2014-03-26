@@ -222,6 +222,10 @@ class Container implements ContainerInterface, \ArrayAccess
                 ];
             }
 
+            if (is_array($options) && array_key_exists('definition', $options)) {
+                $options['class'] = $options['definition'];
+            }
+
             $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
             $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
 

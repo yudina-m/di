@@ -318,7 +318,7 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
                 ]
             ],
             'OrnoTest\Assets\Bar' => [
-                'class' => 'OrnoTest\Assets\Bar',
+                'definition' => 'OrnoTest\Assets\Bar',
                 'arguments' => ['OrnoTest\Assets\Baz']
             ],
             'OrnoTest\Assets\Baz' => 'OrnoTest\Assets\Baz',
