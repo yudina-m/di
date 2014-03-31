@@ -51,15 +51,13 @@ class Container implements ContainerInterface, \ArrayAccess
      */
     public function __construct(
         Cache   $cache   = null,
-        $config  = null,
+        $config          = [],
         Factory $factory = null
     ) {
         $this->factory = (is_null($factory)) ? new Factory : $factory;
         $this->cache   = $cache;
 
-        if (! is_null($config)) {
-            $this->addItemsFromConfig($config);
-        }
+        $this->addItemsFromConfig($config);
 
         $this->add('Orno\Di\ContainerInterface', $this);
         $this->add('Orno\Di\Container', $this);
@@ -216,6 +214,10 @@ class Container implements ContainerInterface, \ArrayAccess
     {
         if (! is_array($config) && ! $config instanceof \ArrayAccess) {
             throw new \InvalidArgumentException('You can only load definitions from and array or an object that implements ArrayAccess.');
+        }
+
+        if (empty($config)) {
+            return;
         }
 
         if (! isset($config['di']) || ! is_array($config['di'])) {
