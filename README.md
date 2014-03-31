@@ -234,7 +234,9 @@ In the above example, `Foo` will be reflected on by the container as there is no
 
 ### Configuration
 
-As your project grows, so will your dependency map. At this point it may be worth abstracting your mappins in to a config file. By using [Orno\Config](https://github.com/orno/config) you can store your mappings in either PHP arrays, XML or YAML.
+As your project grows, so will your dependency map. At this point it may be worth abstracting your mappins in to a config file. You can store your mappings in an array, or any object implementing the `ArrayAccess` interface.  We recommend using [Orno\Config](https://github.com/orno/config), which allows you to store your mappings in either PHP arrays, XML or YAML.
+
+**Note:** When using an array, or other ArrayAccess object, the mappings **must** be under a key named `di`.
 
 ```php
 class Foo
@@ -285,7 +287,7 @@ return [
 ];
 ```
 
-Then add the dependency map to the container.
+#### Using Orno/Config
 
 ```php
 $loader = new \Orno\Config\File\ArrayFileLoader('path/to/config/array_config.php', 'di');
@@ -295,4 +297,17 @@ $container = new \Orno\Di\Container(null, $config);
 
 $foo = $container->get('Foo');
 ```
+
+#### Using Plain PHP
+
+```php
+$config = [
+    'di' => require 'path/to/config/array_config.php',
+];
+
+$container = new \Orno\Di\Container(null, $config);
+
+$foo = $container->get('Foo');
+```
+
 
