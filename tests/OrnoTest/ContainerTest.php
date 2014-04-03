@@ -15,6 +15,21 @@ use Orno\Di\Definition\Factory;
  */
 class ContainerTest extends \PHPUnit_Framework_Testcase
 {
+    protected $configArray = [
+        'OrnoTest\Assets\Foo' => [
+            'class' => 'OrnoTest\Assets\Foo',
+            'arguments' => ['OrnoTest\Assets\Bar'],
+            'methods' => [
+                'injectBaz' => ['OrnoTest\Assets\Baz']
+            ]
+        ],
+        'OrnoTest\Assets\Bar' => [
+            'definition' => 'OrnoTest\Assets\Bar',
+            'arguments' => ['OrnoTest\Assets\Baz']
+        ],
+        'OrnoTest\Assets\Baz' => 'OrnoTest\Assets\Baz',
+    ];
+
     public function testAutoResolvesNestedDependenciesWithAliasedInterface()
     {
         $c = new Container;
@@ -307,32 +322,42 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
         $this->assertFalse(isset($c['OrnoTest\Assets\Baz']));
     }
 
-    public function testContainerAcceptsConfig()
+    public function testContainerAcceptsArrayWithKey()
     {
-        $array = [
-            'OrnoTest\Assets\Foo' => [
-                'class' => 'OrnoTest\Assets\Foo',
-                'arguments' => ['OrnoTest\Assets\Bar'],
-                'methods' => [
-                    'injectBaz' => ['OrnoTest\Assets\Baz']
-                ]
-            ],
-            'OrnoTest\Assets\Bar' => [
-                'definition' => 'OrnoTest\Assets\Bar',
-                'arguments' => ['OrnoTest\Assets\Baz']
-            ],
-            'OrnoTest\Assets\Baz' => 'OrnoTest\Assets\Baz',
-        ];
+        $c = new Container(null, ['di' => $this->configArray]);
 
-        $config = $this->getMockBuilder('Orno\Config\Repository')
-                       ->setMethods(['get'])
-                       ->disableOriginalConstructor()
-                       ->getMock();
+        $foo = $c->get('OrnoTest\Assets\Foo');
 
-        $config->expects($this->once())
-               ->method('get')
-               ->with($this->equalTo('di'), $this->equalTo([]))
-               ->will($this->returnValue($array));
+        $this->assertInstanceOf('OrnoTest\Assets\Foo', $foo);
+        $this->assertInstanceOf('OrnoTest\Assets\Bar', $foo->bar);
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->bar->baz);
+        $this->assertInstanceOf('OrnoTest\Assets\BazInterface', $foo->bar->baz);
+
+        $baz = $c->get('OrnoTest\Assets\Baz');
+        $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testContainerDoesntAcceptsArrayWithoutKey()
+    {
+        $c = new Container(null, $this->configArray);
+    }
+
+    public function testContainerAcceptsArrayAccess()
+    {
+        $config = $this->getMock('ArrayAccess', ['offsetGet', 'offsetSet', 'offsetUnset', 'offsetExists']);
+        $config->expects($this->any())
+               ->method('offsetGet')
+               ->with($this->equalTo('di'))
+               ->will($this->returnValue($this->configArray));
+
+        $config->expects($this->any())
+               ->method('offsetExists')
+               ->with($this->equalTo('di'))
+               ->will($this->returnValue(true));
+
 
         $c = new Container(null, $config);
 
@@ -345,5 +370,13 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
 
         $baz = $c->get('OrnoTest\Assets\Baz');
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testContainerDoesntAcceptsInvalidConfigType()
+    {
+        $c = new Container(null, new \stdClass());
     }
 }

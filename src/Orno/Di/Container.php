@@ -7,7 +7,6 @@
  */
 namespace Orno\Di;
 
-use Orno\Config\Repository as Config;
 use Orno\Cache\Cache;
 use Orno\Di\Definition\Factory;
 use Orno\Di\Definition\ClosureDefinition;
@@ -47,20 +46,18 @@ class Container implements ContainerInterface, \ArrayAccess
      * Constructor
      *
      * @param \Orno\Cache\Cache           $cache
-     * @param \Orno\Config\Repository     $config
+     * @param array|ArrayAccess           $config
      * @param \Orno\Di\Definition\Factory $factory
      */
     public function __construct(
         Cache   $cache   = null,
-        Config  $config  = null,
+        $config          = [],
         Factory $factory = null
     ) {
         $this->factory = (is_null($factory)) ? new Factory : $factory;
         $this->cache   = $cache;
 
-        if ($config instanceof Config) {
-            $this->addItemsFromConfig($config);
-        }
+        $this->addItemsFromConfig($config);
 
         $this->add('Orno\Di\ContainerInterface', $this);
         $this->add('Orno\Di\Container', $this);
@@ -210,12 +207,24 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * Populate the container with items from config
      *
-     * @param $config \Orno\Config\Repository
+     * @param $config array|ArrayAccess
      * @return void
      */
-    protected function addItemsFromConfig(Config $config)
+    protected function addItemsFromConfig($config)
     {
-        foreach ($config->get('di', []) as $alias => $options) {
+        if (! is_array($config) && ! $config instanceof \ArrayAccess) {
+            throw new \InvalidArgumentException('You can only load definitions from and array or an object that implements ArrayAccess.');
+        }
+
+        if (empty($config)) {
+            return;
+        }
+
+        if (! isset($config['di']) || ! is_array($config['di'])) {
+            throw new \RuntimeException('Key "di" is missing from the definition config, or is not an array.');
+        }
+
+        foreach ($config['di'] as $alias => $options) {
             if (is_string($options) || $options instanceof \Closure) {
                 $options = [
                     'class' => $options,
