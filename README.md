@@ -1,10 +1,11 @@
 # Orno\Di
 
-[![Build Status](https://travis-ci.org/orno/di.png?branch=master)](https://travis-ci.org/orno/di)
-[![Code Coverage](https://scrutinizer-ci.com/g/orno/di/badges/coverage.png?s=31f61c25dbff39d66cd3677595658ac27772a0d1)](https://scrutinizer-ci.com/g/orno/di/)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/orno/di/badges/quality-score.png?s=c01d28ae7d616f1aa5c61b177588c90f3195ce6b)](https://scrutinizer-ci.com/g/orno/di/)
-[![Latest Stable Version](https://poser.pugx.org/orno/di/v/stable.png)](https://packagist.org/packages/orno/di)
-[![Total Downloads](https://poser.pugx.org/orno/di/downloads.png)](https://packagist.org/packages/orno/di)
+[![Latest Version](https://img.shields.io/github/release/orno/di.svg?style=flat)](https://github.com/orno/di/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/orno/di/master.svg?style=flat)](https://travis-ci.org/orno/di)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/orno/di.svg?style=flat)](https://scrutinizer-ci.com/g/orno/di/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/orno/di.svg?style=flat)](https://scrutinizer-ci.com/g/orno/di)
+[![Total Downloads](https://img.shields.io/packagist/dt/orno/di.svg?style=flat)](https://packagist.org/packages/orno/di)
 
 Orno\Di is a small but powerful dependency injection container that allows you to decouple components in your application in order to write clean and testable code. The container can automatically resolve dependencies of objects resolved through it.
 
