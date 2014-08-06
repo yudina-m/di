@@ -19,4 +19,4 @@ after_script:
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 script:
-  phpunit
+  phpunit --coverage-text --coverage-clover=coverage.clover
