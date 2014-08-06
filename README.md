@@ -1,6 +1,6 @@
 # Orno\Di
 
-[![Latest Version](https://img.shields.io/github/release/orno/di.svg?style=flat)](https://github.com/orno/di/releases)
+[![Latest Version](http://img.shields.io/packagist/v/orno/di.svg?style=flat)](https://github.com/orno/di/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/orno/di/master.svg?style=flat)](https://travis-ci.org/orno/di)
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/orno/di.svg?style=flat)](https://scrutinizer-ci.com/g/orno/di/code-structure)
