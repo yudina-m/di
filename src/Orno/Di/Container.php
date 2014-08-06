@@ -224,38 +224,48 @@ class Container implements ContainerInterface, \ArrayAccess
             throw new \RuntimeException('Key "di" is missing from the definition config, or is not an array.');
         }
 
-        foreach ($config['di'] as $alias => $options) {
-            if (is_string($options) || $options instanceof \Closure) {
-                $options = [
-                    'class' => $options,
-                ];
-            }
+        $definitions = $config['di'];
 
-            if (is_array($options) && array_key_exists('definition', $options)) {
-                $options['class'] = $options['definition'];
-            }
+        array_walk($definitions, [$this, 'createDefinitionFromConfig']);
+    }
 
-            $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
-            $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
-
-            // if the concrete doesn't have a class associated with it then it
-            // must be either a Closure or arbitrary type so we just bind that
-            $concrete = (is_null($concrete)) ? $options : $concrete;
-
-            $definition = $this->add($alias, $concrete, $singleton);
-
-            // set constructor argument injections
-            if (array_key_exists('arguments', $options)) {
-                $definition->withArguments((array) $options['arguments']);
-            }
-
-            // set method calls
-            if (array_key_exists('methods', $options)) {
-                $definition->withMethodCalls((array) $options['methods']);
-            }
+    /**
+     * Create a definition from a config entry
+     *
+     * @param  mixed $options
+     * @param  array $alias
+     * @return void
+     */
+    protected function createDefinitionFromConfig($options, $alias)
+    {
+        if (is_string($options) || $options instanceof \Closure) {
+            $options = [
+                'class' => $options,
+            ];
         }
 
-        return $this;
+        if (is_array($options) && array_key_exists('definition', $options)) {
+            $options['class'] = $options['definition'];
+        }
+
+        $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
+        $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
+
+        // if the concrete doesn't have a class associated with it then it
+        // must be either a Closure or arbitrary type so we just bind that
+        $concrete = (is_null($concrete)) ? $options : $concrete;
+
+        $definition = $this->add($alias, $concrete, $singleton);
+
+        // set constructor argument injections
+        if (array_key_exists('arguments', $options)) {
+            $definition->withArguments((array) $options['arguments']);
+        }
+
+        // set method calls
+        if (array_key_exists('methods', $options)) {
+            $definition->withMethodCalls((array) $options['methods']);
+        }
     }
 
     /**
