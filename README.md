@@ -1,4 +1,4 @@
-# Orno\Di
+# Orno\Di by [@philipobenito](https://twitter.com/philipobenito)
 
 [![Latest Version](http://img.shields.io/packagist/v/orno/di.svg?style=flat)](https://github.com/orno/di/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
