@@ -32,6 +32,18 @@ interface ContainerInterface
     public function singleton($alias, $concrete = null);
 
     /**
+     * Modify the definition of an already defined service
+     *
+     * @param   string $alias
+     * @throws  \Orno\Di\Exception\ServiceNotRegisteredException if the definition
+     *          does not exist
+     * @throws  \Orno\Di\Exception\SingletonExistsException if the service is a
+     *          singleton and has already been created
+     * @return  \Orno\Di\Definition\DefinitionInterface
+     */
+    public function extend($alias);
+
+    /**
      * Get an item from the container
      *
      * @param  string $alias

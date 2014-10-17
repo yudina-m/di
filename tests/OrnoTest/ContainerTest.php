@@ -13,7 +13,7 @@ use Orno\Di\Definition\Factory;
 /**
  * ContainerTest
  */
-class ContainerTest extends \PHPUnit_Framework_Testcase
+class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     protected $configArray = [
         'OrnoTest\Assets\Foo' => [
@@ -378,5 +378,35 @@ class ContainerTest extends \PHPUnit_Framework_Testcase
     public function testContainerDoesntAcceptsInvalidConfigType()
     {
         $c = new Container(null, new \stdClass());
+    }
+
+    /**
+     * @expectedException Orno\Di\Exception\ServiceNotRegisteredException
+     */
+    public function testExtendThrowsExceptionWhenUnregisteredServiceIsGiven()
+    {
+        $c = new Container;
+        $c->extend('does_not_exist');
+    }
+
+    /**
+     * @expectedException Orno\Di\Exception\SingletonExistsException
+     */
+    public function testExtendsThrowsExceptionWhenModifyingAnExistingSingleton()
+    {
+        $c = new Container;
+        $c->singleton('service', 'OrnoTest\Assets\Baz');
+        $c->get('service');
+        $c->extend('service');
+    }
+
+    public function testExtendReturnsDefinitionForModificationWhenCalledWithAValidService()
+    {
+        $c = new Container;
+        $definition = $c->add('service', 'OrnoTest\Assets\Baz');
+        $extend = $c->extend('service');
+
+        $this->assertInstanceOf('Orno\Di\Definition\DefinitionInterface', $extend);
+        $this->assertSame($definition, $extend);
     }
 }

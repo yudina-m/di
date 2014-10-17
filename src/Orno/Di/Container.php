@@ -100,6 +100,28 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * {@inheritdoc}
      */
+    public function extend($alias)
+    {
+        if (! $this->isRegistered($alias)) {
+            throw new Exception\ServiceNotRegisteredException(sprintf(
+                '"%s" is not registered in the container',
+                $alias
+            ));
+        }
+
+        if (array_key_exists($alias, $this->singletons)) {
+            throw new Exception\SingletonExistsException(sprintf(
+                '"%s" is a singleton,  has already been created, and cannot be modified',
+                $alias
+            ));
+        }
+
+        return $this->items[$alias]['definition'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function get($alias, array $args = [])
     {
         // if we have a singleton just return it
