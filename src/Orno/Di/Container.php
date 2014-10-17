@@ -103,7 +103,7 @@ class Container implements ContainerInterface, \ArrayAccess
     public function extend($alias)
     {
         if (! $this->isRegistered($alias)) {
-            throw new Exception\ServiceNotRegisteredException(sprintf(
+            throw new \InvalidArgumentException(sprintf(
                 '"%s" is not registered in the container',
                 $alias
             ));

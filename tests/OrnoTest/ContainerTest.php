@@ -381,7 +381,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Orno\Di\Exception\ServiceNotRegisteredException
+     * @expectedException InvalidArgumentException
      */
     public function testExtendThrowsExceptionWhenUnregisteredServiceIsGiven()
     {
