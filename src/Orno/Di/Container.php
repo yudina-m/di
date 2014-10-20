@@ -126,11 +126,10 @@ class Container implements ContainerInterface, \ArrayAccess
         // invoke the correct definition
         if (array_key_exists($alias, $this->items)) {
             $definition = $this->items[$alias]['definition'];
+            $return     = $definition;
 
             if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition) {
                 $return = $definition($args);
-            } else {
-                $return = $definition;
             }
 
             // store as a singleton if needed
@@ -142,11 +141,8 @@ class Container implements ContainerInterface, \ArrayAccess
         }
 
         // check for and invoke a definition that was reflected on then cached
-        if ($this->isCaching()) {
-            if ($cached = $this->cache->get('orno::container::' . $alias)) {
-                $definition = unserialize($cached);
-                return $definition();
-            }
+        if ($this->isCaching() && $cached = $this->getCachedDefinition($alias)) {
+            return $cached;
         }
 
         // if we've got this far, we can assume we need to reflect on a class
@@ -161,6 +157,23 @@ class Container implements ContainerInterface, \ArrayAccess
         $this->items[$alias]['definition'] = $definition;
 
         return $definition();
+    }
+
+    /**
+     * Return a cached definition object
+     *
+     * @param  string $alias
+     * @return \Orno\Di\Definition\DefinitionInterface
+     */
+    protected function getCachedDefinition($alias)
+    {
+        if ($cached = $this->cache->get('orno::container::' . $alias)) {
+            $definition = unserialize($cached);
+
+            return $definition();
+        }
+
+        return false;
     }
 
     /**
