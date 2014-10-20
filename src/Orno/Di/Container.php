@@ -73,7 +73,7 @@ class Container implements ContainerInterface, \ArrayAccess
         // as a singleton
         if (is_object($concrete) && ! $concrete instanceof \Closure) {
             $this->singletons[$alias] = $concrete;
-            return $this;
+            return null;
         }
 
         // get a definition of the item
