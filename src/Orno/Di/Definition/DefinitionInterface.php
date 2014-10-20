@@ -34,7 +34,7 @@ interface DefinitionInterface
     public function withArguments(array $args);
 
     /**
-     * Add a method to be invokes
+     * Add a method to be invoked
      *
      * @param  string $method
      * @param  array  $args

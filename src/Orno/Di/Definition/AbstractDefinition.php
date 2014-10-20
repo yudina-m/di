@@ -94,8 +94,8 @@ abstract class AbstractDefinition implements DefinitionInterface
      * Resolves all of the arguments.  If you do not send an array of arguments
      * it will use the Definition Arguments.
      *
-     * @param  array $args The arguments to us instead of $this->arguments
-     * @return array The resolved arguments.
+     * @param  array $args
+     * @return array
      */
     protected function resolveArguments($args = [])
     {
@@ -106,9 +106,10 @@ abstract class AbstractDefinition implements DefinitionInterface
         foreach ($args as $arg) {
             if (is_string($arg) && ($this->container->isRegistered($arg) || class_exists($arg))) {
                 $resolvedArguments[] = $this->container->get($arg);
-            } else {
-                $resolvedArguments[] = $arg;
+                continue;
             }
+
+            $resolvedArguments[] = $arg;
         }
 
         return $resolvedArguments;

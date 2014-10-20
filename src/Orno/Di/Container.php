@@ -233,7 +233,7 @@ class Container implements ContainerInterface, \ArrayAccess
         }
 
         if (empty($config)) {
-            return;
+            return null;
         }
 
         if (! isset($config['di']) || ! is_array($config['di'])) {

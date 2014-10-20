@@ -27,7 +27,8 @@ class ClassDefinition extends AbstractDefinition
     public function __construct($alias, $concrete, ContainerInterface $container)
     {
         parent::__construct($alias, $container);
-        $this->class     = $concrete;
+
+        $this->class = $concrete;
     }
 
     /**

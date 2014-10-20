@@ -27,7 +27,8 @@ class ClosureDefinition extends AbstractDefinition
     public function __construct($alias, \Closure $closure, ContainerInterface $container)
     {
         parent::__construct($alias, $container);
-        $this->closure   = $closure;
+
+        $this->closure = $closure;
     }
 
     /**
