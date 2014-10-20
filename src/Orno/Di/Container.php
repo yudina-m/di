@@ -8,9 +8,9 @@
 namespace Orno\Di;
 
 use Orno\Cache\Cache;
-use Orno\Di\Definition\Factory;
-use Orno\Di\Definition\ClosureDefinition;
 use Orno\Di\Definition\ClassDefinition;
+use Orno\Di\Definition\ClosureDefinition;
+use Orno\Di\Definition\Factory;
 
 class Container implements ContainerInterface, \ArrayAccess
 {
