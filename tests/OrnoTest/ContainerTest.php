@@ -337,7 +337,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
     }
 
-    public function testContainerDoesntAcceptsArrayWithoutKey()
+    public function testContainerDoesntAcceptArrayWithoutKey()
     {
         $this->setExpectedException('RuntimeException');
 
@@ -371,7 +371,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
     }
 
-    public function testContainerDoesntAcceptsInvalidConfigType()
+    public function testContainerDoesntAcceptInvalidConfigType()
     {
         $this->setExpectedException('InvalidArgumentException');
 
