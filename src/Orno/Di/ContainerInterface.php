@@ -35,7 +35,7 @@ interface ContainerInterface
      * Modify the definition of an already defined service
      *
      * @param   string $alias
-     * @throws  InvalidArgumentException if the definition does not exist
+     * @throws  \InvalidArgumentException if the definition does not exist
      * @throws  \Orno\Di\Exception\SingletonExistsException if the service is a
      *          singleton and has already been created
      * @return  \Orno\Di\Definition\DefinitionInterface

@@ -26,7 +26,7 @@ class ClosureDefinition
     protected $alias;
 
     /**
-     * @var string
+     * @var \Closure
      */
     protected $closure;
 
@@ -90,7 +90,7 @@ class ClosureDefinition
     public function withMethodCall($method, array $args = [])
     {
         throw new Exception\UnbindableMethodCallException(
-            sprintf('Cannot bind a method call to a Closure aliased as [%s]', $this->alias)
+            sprintf('Cannot bind a method call [%s] to a Closure aliased as [%s]', $method, $this->alias)
         );
     }
 

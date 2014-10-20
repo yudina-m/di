@@ -337,11 +337,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testContainerDoesntAcceptsArrayWithoutKey()
     {
+        $this->setExpectedException('RuntimeException');
+
         $c = new Container(null, $this->configArray);
     }
 
@@ -372,28 +371,25 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('OrnoTest\Assets\Baz', $foo->baz);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testContainerDoesntAcceptsInvalidConfigType()
     {
+        $this->setExpectedException('InvalidArgumentException');
+
         $c = new Container(null, new \stdClass());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testExtendThrowsExceptionWhenUnregisteredServiceIsGiven()
     {
+        $this->setExpectedException('InvalidArgumentException');
+
         $c = new Container;
         $c->extend('does_not_exist');
     }
 
-    /**
-     * @expectedException Orno\Di\Exception\SingletonExistsException
-     */
     public function testExtendsThrowsExceptionWhenModifyingAnExistingSingleton()
     {
+        $this->setExpectedException('Orno\Di\Exception\ServiceNotExtendableException');
+
         $c = new Container;
         $c->singleton('service', 'OrnoTest\Assets\Baz');
         $c->get('service');

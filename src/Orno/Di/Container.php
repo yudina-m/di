@@ -103,15 +103,12 @@ class Container implements ContainerInterface, \ArrayAccess
     public function extend($alias)
     {
         if (! $this->isRegistered($alias)) {
-            throw new \InvalidArgumentException(sprintf(
-                '"%s" is not registered in the container',
-                $alias
-            ));
+            throw new \InvalidArgumentException(sprintf('[%s] is not registered in the container.', $alias));
         }
 
         if (array_key_exists($alias, $this->singletons)) {
-            throw new Exception\SingletonExistsException(sprintf(
-                '"%s" is a singleton,  has already been created, and cannot be modified',
+            throw new Exception\ServiceNotExtendableException(sprintf(
+                '[%s] is being managed singleton and cannot be modified.',
                 $alias
             ));
         }
@@ -254,8 +251,8 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * Create a definition from a config entry
      *
-     * @param  mixed $options
-     * @param  array $alias
+     * @param  mixed  $options
+     * @param  string $alias
      * @return void
      */
     protected function createDefinitionFromConfig($options, $alias)
