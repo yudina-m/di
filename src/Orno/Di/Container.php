@@ -163,7 +163,7 @@ class Container implements ContainerInterface, \ArrayAccess
      * Return a cached definition object
      *
      * @param  string $alias
-     * @return \Orno\Di\Definition\DefinitionInterface
+     * @return \Orno\Di\Definition\DefinitionInterface|boolean
      */
     protected function getCachedDefinition($alias)
     {
