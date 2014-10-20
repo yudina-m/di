@@ -7,9 +7,6 @@
  */
 namespace Orno\Di\Definition;
 
-/**
- * DefinitionInterface
- */
 interface DefinitionInterface
 {
     /**

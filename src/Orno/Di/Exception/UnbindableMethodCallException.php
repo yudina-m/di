@@ -7,9 +7,6 @@
  */
 namespace Orno\Di\Exception;
 
-/**
- * UnbindableMethodCallException
- */
 class UnbindableMethodCallException extends \BadMethodCallException
 {
 

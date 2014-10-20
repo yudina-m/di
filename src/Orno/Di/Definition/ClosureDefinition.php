@@ -10,9 +10,6 @@ namespace Orno\Di\Definition;
 use Orno\Di\ContainerInterface;
 use Orno\Di\Exception;
 
-/**
- * ClosureDefinition
- */
 class ClosureDefinition extends AbstractDefinition
 {
     /**

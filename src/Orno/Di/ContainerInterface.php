@@ -7,9 +7,6 @@
  */
 namespace Orno\Di;
 
-/**
- * ContainerInterface
- */
 interface ContainerInterface
 {
     /**

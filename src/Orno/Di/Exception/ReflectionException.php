@@ -7,9 +7,6 @@
  */
 namespace Orno\Di\Exception;
 
-/**
- * ReflectionException
- */
 class ReflectionException extends \ReflectionException
 {
 

@@ -7,9 +7,6 @@
  */
 namespace Orno\Di\Exception;
 
-/**
- * UnresolvableDependencyException
- */
 class UnresolvableDependencyException extends \Exception
 {
 

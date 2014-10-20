@@ -12,9 +12,6 @@ use Orno\Di\Definition\Factory;
 use Orno\Di\Definition\ClosureDefinition;
 use Orno\Di\Definition\ClassDefinition;
 
-/**
- * Container
- */
 class Container implements ContainerInterface, \ArrayAccess
 {
     /**

@@ -9,9 +9,6 @@ namespace Orno\Di\Definition;
 
 use Orno\Di\ContainerInterface;
 
-/**
- * An abstract base class for definition objects.
- */
 abstract class AbstractDefinition implements DefinitionInterface
 {
     /**

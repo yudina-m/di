@@ -9,9 +9,6 @@ namespace Orno\Di\Definition;
 
 use Orno\Di\ContainerInterface;
 
-/**
- * Factory
- */
 class Factory
 {
     /**
