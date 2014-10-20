@@ -33,8 +33,7 @@ interface ContainerInterface
      *
      * @param   string $alias
      * @throws  \InvalidArgumentException if the definition does not exist
-     * @throws  \Orno\Di\Exception\SingletonExistsException if the service is a
-     *          singleton and has already been created
+     * @throws  \Orno\Di\Exception\ServiceNotExtendableException if service cannot be extended
      * @return  \Orno\Di\Definition\DefinitionInterface
      */
     public function extend($alias);
