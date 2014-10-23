@@ -54,6 +54,10 @@ class ClosureDefinition extends AbstractDefinition
      */
     public function withMethodCalls(array $methods = [])
     {
+        if (empty($methods)) {
+            return;
+        }
+
         throw new Exception\UnbindableMethodCallException(
             sprintf('Cannot bind method calls to a Closure aliased as [%s]', $this->alias)
         );

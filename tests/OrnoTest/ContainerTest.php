@@ -192,7 +192,25 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
             $foo->injectBaz($baz);
 
             return $foo;
-        })->withMethodCalls([]);
+        })->withMethodCalls([ 'aMethod', 'anotherMethod' ]);
+    }
+
+    public function testSettingMethodCallsOnClosureFailsSilentlyWithEmptyArray()
+    {
+        $c = new Container;
+
+        $baz = new \OrnoTest\Assets\Baz;
+        $bar = new \OrnoTest\Assets\Bar($baz);
+
+        $this->assertNull(
+            $c->add('foo', function ($bar, $baz) {
+                $foo = new \OrnoTest\Assets\Foo($bar);
+
+                $foo->injectBaz($baz);
+
+                return $foo;
+            })->withMethodCalls([])
+        );
     }
 
     public function testStoresAndReturnsArbitraryValues()

@@ -271,30 +271,23 @@ class Container implements ContainerInterface, \ArrayAccess
             $options = [
                 'class' => $options,
             ];
-        }
-
-        if (is_array($options) && array_key_exists('definition', $options)) {
+        } elseif (is_array($options) && array_key_exists('definition', $options)) {
             $options['class'] = $options['definition'];
         }
 
-        $singleton = (array_key_exists('singleton', $options)) ? (boolean) $options['singleton'] : false;
-        $concrete  = (array_key_exists('class', $options)) ? $options['class'] : null;
+        $singleton  = (! empty($options['singleton']));
+        $concrete   = (array_key_exists('class', $options)) ? $options['class'] : null;
+        $arguments  = (array_key_exists('arguments', $options)) ? (array) $options['arguments'] : [];
+        $methods    = (array_key_exists('methods', $options)) ? (array) $options['methods'] : [];
 
         // if the concrete doesn't have a class associated with it then it
         // must be either a Closure or arbitrary type so we just bind that
         $concrete = (is_null($concrete)) ? $options : $concrete;
 
-        $definition = $this->add($alias, $concrete, $singleton);
-
-        // set constructor argument injections
-        if (array_key_exists('arguments', $options)) {
-            $definition->withArguments((array) $options['arguments']);
-        }
-
-        // set method calls
-        if (array_key_exists('methods', $options)) {
-            $definition->withMethodCalls((array) $options['methods']);
-        }
+        // Define in the container, with constructor arguments and method calls
+        $this->add($alias, $concrete, $singleton)
+            ->withArguments($arguments)
+            ->withMethodCalls($methods);
     }
 
     /**
@@ -302,6 +295,8 @@ class Container implements ContainerInterface, \ArrayAccess
      * from that information
      *
      * @param  string $class
+     * @throws Exception\ReflectionException
+     * @throws Exception\UnresolvableDependencyException
      * @return \Orno\Di\Definition\ClassDefinition
      */
     protected function reflect($class)
