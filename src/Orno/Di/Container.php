@@ -242,7 +242,7 @@ class Container implements ContainerInterface, \ArrayAccess
     protected function addItemsFromConfig($config)
     {
         if (! is_array($config) && ! $config instanceof \ArrayAccess) {
-            throw new \InvalidArgumentException('You can only load definitions from and array or an object that implements ArrayAccess.');
+            throw new \InvalidArgumentException('You can only load definitions from an array or an object that implements ArrayAccess.');
         }
 
         if (empty($config)) {
