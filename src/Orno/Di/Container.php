@@ -267,27 +267,41 @@ class Container implements ContainerInterface, \ArrayAccess
      */
     protected function createDefinitionFromConfig($options, $alias)
     {
-        if (is_string($options) || $options instanceof \Closure) {
-            $options = [
-                'class' => $options
-            ];
-        } elseif (is_array($options) && array_key_exists('definition', $options)) {
-            $options['class'] = $options['definition'];
+        $concrete = $this->resolveConcreteClassFromConfig($options);
+        $singleton = false;
+        $arguments = [];
+        $methods = [];
+
+        if (is_array($options)) {
+            $singleton  = (! empty($options['singleton']));
+            $arguments  = (array_key_exists('arguments', $options)) ? (array) $options['arguments'] : [];
+            $methods    = (array_key_exists('methods', $options)) ? (array) $options['methods'] : [];
         }
-
-        $singleton  = (! empty($options['singleton']));
-        $concrete   = (array_key_exists('class', $options)) ? $options['class'] : null;
-        $arguments  = (array_key_exists('arguments', $options)) ? (array) $options['arguments'] : [];
-        $methods    = (array_key_exists('methods', $options)) ? (array) $options['methods'] : [];
-
-        // if the concrete doesn't have a class associated with it then it
-        // must be either a Closure or arbitrary type so we just bind that
-        $concrete = (is_null($concrete)) ? $options : $concrete;
 
         // Define in the container, with constructor arguments and method calls
         $this->add($alias, $concrete, $singleton)
             ->withArguments($arguments)
             ->withMethodCalls($methods);
+    }
+
+    /**
+     * Resolves the concrete class
+     */
+    protected function resolveConcreteClassFromConfig($options)
+    {
+        $concrete = $options;
+
+        if (is_array($concrete)) {
+            if (array_key_exists('definition', $concrete)) {
+                $concrete = $concrete['definition'];
+            } elseif (array_key_exists('class', $concrete)) {
+                $concrete = $concrete['class'];
+            }
+        }
+
+        // if the concrete doesn't have a class associated with it then it
+        // must be either a Closure or arbitrary type so we just bind that
+        return $concrete;
     }
 
     /**
