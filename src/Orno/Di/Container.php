@@ -286,6 +286,9 @@ class Container implements ContainerInterface, \ArrayAccess
 
     /**
      * Resolves the concrete class
+     *
+     * @param $options
+     * @return mixed
      */
     protected function resolveConcreteClassFromConfig($options)
     {
