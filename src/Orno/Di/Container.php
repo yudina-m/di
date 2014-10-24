@@ -269,7 +269,7 @@ class Container implements ContainerInterface, \ArrayAccess
     {
         if (is_string($options) || $options instanceof \Closure) {
             $options = [
-                'class' => $options,
+                'class' => $options
             ];
         } elseif (is_array($options) && array_key_exists('definition', $options)) {
             $options['class'] = $options['definition'];
