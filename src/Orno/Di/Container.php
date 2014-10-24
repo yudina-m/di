@@ -287,13 +287,11 @@ class Container implements ContainerInterface, \ArrayAccess
     /**
      * Resolves the concrete class
      *
-     * @param $options
+     * @param mixed $concrete
      * @return mixed
      */
-    protected function resolveConcreteClassFromConfig($options)
+    protected function resolveConcreteClassFromConfig($concrete)
     {
-        $concrete = $options;
-
         if (is_array($concrete)) {
             if (array_key_exists('definition', $concrete)) {
                 $concrete = $concrete['definition'];
