@@ -267,10 +267,10 @@ class Container implements ContainerInterface, \ArrayAccess
      */
     protected function createDefinitionFromConfig($options, $alias)
     {
-        $concrete = $this->resolveConcreteClassFromConfig($options);
+        $concrete  = $this->resolveConcreteClassFromConfig($options);
         $singleton = false;
         $arguments = [];
-        $methods = [];
+        $methods   = [];
 
         if (is_array($options)) {
             $singleton  = (! empty($options['singleton']));
@@ -280,8 +280,8 @@ class Container implements ContainerInterface, \ArrayAccess
 
         // Define in the container, with constructor arguments and method calls
         $this->add($alias, $concrete, $singleton)
-            ->withArguments($arguments)
-            ->withMethodCalls($methods);
+             ->withArguments($arguments)
+             ->withMethodCalls($methods);
     }
 
     /**
