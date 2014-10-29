@@ -6,6 +6,9 @@
     "require": {
         "php": ">=5.4"
     },
+    "require-dev":{
+        "phpunit/phpunit": "~4.0"
+    },
     "suggest": {
         "orno/cache": "Enables caching of reflection based resolution",
         "orno/config": "Allows useage of config files rather than interacting with the container directly"
@@ -17,10 +20,9 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "Orno\\Di": "src/",
-            "OrnoTest": "tests/"
+        "psr-4": {
+            "Orno\\Di\\": "src/",
+            "OrnoTest\\Assets\\": "tests/assets"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }

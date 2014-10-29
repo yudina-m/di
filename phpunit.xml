@@ -13,7 +13,7 @@
 
     <testsuites>
         <testsuite name="Orno DI Test Suite">
-            <directory>./tests/OrnoTest/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 

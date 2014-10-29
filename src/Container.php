@@ -10,6 +10,7 @@ namespace Orno\Di;
 use Orno\Cache\Cache;
 use Orno\Di\Definition\ClassDefinition;
 use Orno\Di\Definition\ClosureDefinition;
+use Orno\Di\Definition\DefinitionInterface;
 use Orno\Di\Definition\Factory;
 
 class Container implements ContainerInterface, \ArrayAccess
@@ -125,19 +126,7 @@ class Container implements ContainerInterface, \ArrayAccess
 
         // invoke the correct definition
         if (array_key_exists($alias, $this->items)) {
-            $definition = $this->items[$alias]['definition'];
-            $return     = $definition;
-
-            if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition) {
-                $return = $definition($args);
-            }
-
-            // store as a singleton if needed
-            if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
-                $this->singletons[$alias] = $return;
-            }
-
-            return $return;
+            return $this->resolveDefinition($alias, $args);
         }
 
         // check for and invoke a definition that was reflected on then cached
@@ -157,6 +146,30 @@ class Container implements ContainerInterface, \ArrayAccess
         $this->items[$alias]['definition'] = $definition;
 
         return $definition();
+    }
+
+    /**
+     * Resolve a container definition
+     *
+     * @param  string $alias
+     * @param  array  $args
+     * @return mixed
+     */
+    protected function resolveDefinition($alias, array $args)
+    {
+        $definition = $this->items[$alias]['definition'];
+        $return     = $definition;
+
+        if ($definition instanceof ClosureDefinition || $definition instanceof ClassDefinition) {
+            $return = $definition($args);
+        }
+
+        // store as a singleton if needed
+        if (isset($this->items[$alias]['singleton']) && $this->items[$alias]['singleton'] === true) {
+            $this->singletons[$alias] = $return;
+        }
+
+        return $return;
     }
 
     /**
