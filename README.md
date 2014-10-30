@@ -1,11 +1,12 @@
-# Orno\Di by [@philipobenito](https://twitter.com/philipobenito)
+# Orno\Di
 
-[![Latest Version](http://img.shields.io/packagist/v/orno/di.svg?style=flat)](https://github.com/orno/di/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/orno/di/master.svg?style=flat)](https://travis-ci.org/orno/di)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/orno/di.svg?style=flat)](https://scrutinizer-ci.com/g/orno/di/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/orno/di.svg?style=flat)](https://scrutinizer-ci.com/g/orno/di)
-[![Total Downloads](https://img.shields.io/packagist/dt/orno/di.svg?style=flat)](https://packagist.org/packages/orno/di)
+[![Author](http://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
+[![Latest Version](http://img.shields.io/packagist/v/orno/di.svg?style=flat-square)](https://github.com/orno/di/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/orno/di/master.svg?style=flat-square)](https://travis-ci.org/orno/di)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/orno/di.svg?style=flat-square)](https://scrutinizer-ci.com/g/orno/di/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/orno/di.svg?style=flat-square)](https://scrutinizer-ci.com/g/orno/di)
+[![Total Downloads](https://img.shields.io/packagist/dt/orno/di.svg?style=flat-square)](https://packagist.org/packages/orno/di)
 
 Orno\Di is a small but powerful dependency injection container that allows you to decouple components in your application in order to write clean and testable code. The container can automatically resolve dependencies of objects resolved through it.
 
@@ -310,5 +311,3 @@ $container = new \Orno\Di\Container(null, $config);
 
 $foo = $container->get('Foo');
 ```
-
-
