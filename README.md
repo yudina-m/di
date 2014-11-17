@@ -2,7 +2,7 @@
 
 [![Author](http://img.shields.io/badge/author-@philipobenito-blue.svg?style=flat-square)](https://twitter.com/philipobenito)
 [![Latest Version](http://img.shields.io/packagist/v/orno/di.svg?style=flat-square)](https://github.com/orno/di/releases)
-[![Build Status](https://img.shields.io/travis/orno/di/master.svg?style=flat-square)](https://travis-ci.org/orno/di)
+[![Build Status](https://travis-ci.org/yudina-m/di.svg)](https://travis-ci.org/yudina-m/di)
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/orno/di.svg?style=flat-square)](https://scrutinizer-ci.com/g/orno/di/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/orno/di.svg?style=flat-square)](https://scrutinizer-ci.com/g/orno/di)
 [![Total Downloads](https://img.shields.io/packagist/dt/orno/di.svg?style=flat-square)](https://packagist.org/packages/orno/di)
